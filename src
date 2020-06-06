@@ -1,0 +1,144 @@
+package project1;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+
+public class project1 {
+	
+	//setting regex
+	String order_id_regex = "[0-9]*{3}\\-[A-Za-z]*{3}\\-[0-9]*{4}";
+	String east_address_regex = "[A-Za-z0-9 ]*(E.|E)[A-Za-z0-9 ]*(Street|St.|St)";
+	String west_address_regex = "[A-Za-z0-9 ]*(W.|W|West)[A-Za-z0-9 ]*(Street|St.|St)";
+	String broadway_address_regex = "[A-Za-z0-9 ]*(Broadway|Bway|B'way)";
+	String avenue_address_regex = "[A-Za-z0-9 ]*(Ave|Ave.|Avenue)";
+	String weight_regex = "[0-9]*{2}\\.[0-9]";
+	
+	//setting variables 
+	static int count_west1;
+	static int count_east;
+	static int count_ave; 
+	static int count_Bway;
+	static int count_lbs;
+	
+	ArrayList id_errors = new ArrayList();
+
+	
+	//constructor
+	public project1(){
+	
+}
+	//get the name of a file and open it if String filename is not empty
+	public void run(String filename) throws Exception{
+		if(filename != null){
+			
+			openFile(filename);
+		}
+	}
+	
+	//to read each line and do require functions for the project 1 
+	private void openFile(String filename) throws Exception{
+		System.out.println("Regex Co");
+		System.out.println("Processing file: " + filename);
+		
+		//Open the file and connect it to buffered reader
+		BufferedReader br = new BufferedReader(new FileReader(filename));
+	
+		String line = null;
+		
+		// go over the lines
+		while((line = br.readLine()) != null){
+		
+		String[] result = line.split(",");		
+		String id_regex = result[0].trim().toUpperCase();
+		
+		//to store ids of malformed packages
+		if(!id_regex.matches(order_id_regex)&& (result.length == 3) ){						
+			id_errors.add(id_regex);			
+		}
+		
+		if(result.length == 3 && id_regex.matches(order_id_regex)){
+		
+		if(result[1].matches(east_address_regex)){
+			count_east++;			
+		}
+		if(result[1].matches(avenue_address_regex)){	
+			count_ave++;		
+		}
+		
+		if(result[1].matches(broadway_address_regex)){	
+			count_Bway++;
+		}
+	
+		if(result[1].matches(west_address_regex)){	
+			count_west1++;
+		}
+			
+		}else if (result.length > 3){
+			id_errors.add(id_regex);
+		}
+		
+		//to store ids of malformed packages
+		if((result.length==3)&& !((result[1].matches(east_address_regex))||(result[1].matches(avenue_address_regex))||(result[1].matches(broadway_address_regex))
+				||(result[1].matches(west_address_regex)))){
+				id_errors.add(id_regex);
+		}
+	
+		//conditional statement to count the weight of packages more than 50 lbs
+		if(result.length == 3 && id_regex.matches(order_id_regex)&&((result[1].matches(east_address_regex))
+				||(result[1].matches(avenue_address_regex))
+				||(result[1].matches(broadway_address_regex))
+				||(result[1].matches(west_address_regex)))){	
+			
+			float f =Float.valueOf(result[2]);		
+				if(f>50)
+				count_lbs++;
+				
+		}
+		
+		
+		}
+		br.close();	
+	
+	
+	}
+	
+	//to print the output
+	public String print()
+	{
+		return "East: "+ count_east+"\n"
+				+"West: " + count_west1+"\n"
+				+"Ave: " + count_ave +"\n"
+				+ "Bway: "+ count_Bway+"\n"
+				+ ">50lbs: " + count_lbs+"\n"
+				+"id_errors: "+ id_errors;
+		
+	}
+			
+		//main method
+	public static void main(String[] args){
+		
+		project1 theApp = new project1();
+		String filename = null;
+		
+		// use given command line to find the file
+		if(args.length > 0){
+			filename = args[0];		
+		}
+	
+	try{
+		theApp.run(filename);
+	}
+	catch(Exception e){
+		System.out.println("Something bad happened!");
+		e.printStackTrace();
+	}
+	
+	// print the info of packages
+	System.out.println(theApp.print());
+	
+	
+	}
+	
+	
+}
